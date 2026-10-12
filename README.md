@@ -24,6 +24,9 @@ Test what you know. Discover what you don't.
 
 </div>
 
+<img width="508" height="442" alt="image" src="https://github.com/user-attachments/assets/e36ced98-248e-4322-81d7-56dc542a8ad6" />
+
+
 ---
 
 ## 📖 Overview
