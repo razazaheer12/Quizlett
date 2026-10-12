@@ -300,6 +300,16 @@ Built with excellent open-source tools:
 
 ---
 
+## Author 
+
+<div>
+
+Built with focus, calm, and ☕ by [Raza Zaheer](https://github.com/razazaheer12)
+
+</div>
+
+---
+
 <div align="center">
 
 **[🔗 Try the Live Demo](https://quizlett-mcqs.vercel.app/)** &nbsp;·&nbsp; **[📦 View on GitHub](https://github.com/razazaheer12/Quizlett)**
