@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    --background: 225 45% 97%;
+    --foreground: 222 47% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 8%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 224 44% 94%;
+    --muted-foreground: 222 14% 41%;
+    --accent: 224 44% 93%;
+    --accent-foreground: 222 47% 10%;
+    --destructive: 342 82% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 25% 88%;
+    --input: 224 25% 84%;
+    --ring: 243 75% 59%;
+    --radius: 0.75rem;
+
+    --surface: 225 40% 96%;
+    --elevated: 0 0% 100%;
+    --success: 142 72% 29%;
+    --warning: 36 90% 37%;
+
+    --chart-1: 243 75% 59%;
+    --chart-2: 262 83% 58%;
+    --chart-3: 142 72% 29%;
+    --chart-4: 36 90% 37%;
+    --chart-5: 342 82% 41%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 8%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 224 44% 94%;
+    --sidebar-accent-foreground: 222 47% 8%;
+    --sidebar-border: 224 25% 88%;
+    --sidebar-ring: 243 75% 59%;
+
+    --ambient-1: 0.07;
+    --ambient-2: 0.05;
+    --noise-opacity: 0.03;
+    --shadow-soft: 0 1px 2px rgb(16 24 40 / 0.06);
+    --shadow-lift: 0 12px 28px -16px rgb(16 24 40 / 0.18);
+    --shadow-glow:
+      0 0 0 1px hsl(243 75% 59% / 0.22), 0 6px 24px -10px hsl(243 75% 59% / 0.28);
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: 224 44% 5%;
+    --foreground: 210 40% 98%;
+    --card: 224 40% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 40% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 237 100% 74%;
+    --primary-foreground: 226 45% 8%;
+    --secondary: 258 90% 66%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 224 32% 13%;
+    --muted-foreground: 215 16% 65%;
+    --accent: 224 32% 16%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 350 89% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 26% 16%;
+    --input: 224 26% 20%;
+    --ring: 237 100% 74%;
+
+    --surface: 224 35% 10%;
+    --elevated: 224 33% 13%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+
+    --chart-1: 237 100% 74%;
+    --chart-2: 258 90% 66%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 350 89% 60%;
+
+    --sidebar-background: 224 40% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 237 100% 74%;
+    --sidebar-primary-foreground: 226 45% 8%;
+    --sidebar-accent: 224 32% 16%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 224 26% 16%;
+    --sidebar-ring: 237 100% 74%;
+
+    --ambient-1: 0.1;
+    --ambient-2: 0.07;
+    --noise-opacity: 0.04;
+    --shadow-soft: 0 1px 3px rgb(0 0 0 / 0.4);
+    --shadow-lift: 0 12px 32px -16px rgb(0 0 0 / 0.6);
+    --shadow-glow:
+      0 0 0 1px hsl(237 100% 74% / 0.28), 0 6px 28px -10px hsl(237 100% 74% / 0.35);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ambient environment: two restrained radial glows + fine noise grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 40rem at 50% -12%, hsl(var(--primary) / var(--ambient-1)), transparent 62%),
+      radial-gradient(48rem 34rem at 88% 112%, hsl(var(--secondary) / var(--ambient-2)), transparent 60%);
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--noise-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring) / 0.75);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .kbd {
+    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-md border border-border bg-card px-1.5 text-[10px] font-medium text-muted-foreground;
+    box-shadow: inset 0 -1px 0 hsl(var(--border));
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-primary;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
