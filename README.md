@@ -11,7 +11,10 @@
 **A modern, local-first interactive quiz platform.**
 Test what you know. Discover what you don't.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.2-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+**🔗 [Live Demo](https://quizlett-mcqs.vercel.app/)** &nbsp;·&nbsp; **📦 [Repository](https://github.com/razazaheer12/Quizlett)**
+
+[![Live](https://img.shields.io/badge/Live_Demo-quizlett--mcqs.vercel.app-success?logo=vercel&logoColor=white)](https://quizlett-mcqs.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
@@ -37,6 +40,7 @@ and resume exactly where you left off. Your data never leaves your machine.
 
 | At a glance |  |
 |---|---|
+| 🌐 Live | [quizlett-mcqs.vercel.app](https://quizlett-mcqs.vercel.app/) |
 | 📚 Sections | 3 — Mathematics, Programming, General Knowledge |
 | ❓ Questions | 30 (10 per section) |
 | 🎮 Modes | 2 — Sequential (instant feedback) & Batch (submit-to-score) |
@@ -218,8 +222,8 @@ Quizlett/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/Quizlett-advanced-mcq-quiz.git
-cd Quizlett-advanced-mcq-quiz
+git clone https://github.com/razazaheer12/Quizlett.git
+cd Quizlett
 
 # 2. Install dependencies
 pnpm install
@@ -297,6 +301,8 @@ Built with excellent open-source tools:
 ---
 
 <div align="center">
+
+**[🔗 Try the Live Demo](https://quizlett-mcqs.vercel.app/)** &nbsp;·&nbsp; **[📦 View on GitHub](https://github.com/razazaheer12/Quizlett)**
 
 **Happy quizzing! 🧠✨**
 
