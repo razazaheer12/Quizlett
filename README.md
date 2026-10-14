@@ -23,9 +23,9 @@ Test what you know. Discover what you don't.
 [![Local-first](https://img.shields.io/badge/storage-local--first-success)](#-data-privacy--persistence)
 
 </div>
-
-<img width="508" height="442" alt="image" src="https://github.com/user-attachments/assets/e36ced98-248e-4322-81d7-56dc542a8ad6" />
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e36ced98-248e-4322-81d7-56dc542a8ad6" width="100%" alt="Quizlett Preview">
+</p>
 
 ---
 
