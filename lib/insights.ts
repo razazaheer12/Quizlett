@@ -1,4 +1,4 @@
-import { SECTION_META, SECTION_ORDER, TOTAL_QUESTIONS } from "./questions"
+import { SECTION_META, SECTION_ORDER } from "./questions"
 import type { SectionId, SectionResult } from "./types"
 
 export interface OverallStats {
@@ -8,24 +8,38 @@ export interface OverallStats {
   accuracy: number
 }
 
+export function accuracyPercent(score: number, total: number): number {
+  if (total <= 0) return 0
+  return Math.round((score / total) * 100)
+}
+
+/**
+ * Overall stats across completed section results. Totals are derived from the
+ * actual attempts (variable length), never a fixed question count.
+ */
 export function overallStats(results: SectionResult[]): OverallStats {
-  const totalScore = results.reduce((sum, result) => sum + result.score, 0)
+  const totalScore = results.reduce((sum, r) => sum + r.score, 0)
+  const totalQuestions = results.reduce((sum, r) => sum + r.totalQuestions, 0)
   return {
     completedSections: results.length,
     totalScore,
-    totalQuestions: TOTAL_QUESTIONS,
-    accuracy: TOTAL_QUESTIONS === 0 ? 0 : Math.round((totalScore / TOTAL_QUESTIONS) * 100),
+    totalQuestions,
+    accuracy: accuracyPercent(totalScore, totalQuestions),
   }
 }
 
 export function strongestSection(results: SectionResult[]): SectionResult | null {
   if (results.length === 0) return null
-  return [...results].sort((a, b) => b.score / b.totalQuestions - a.score / a.totalQuestions)[0]
+  return [...results].sort(
+    (a, b) => b.score / Math.max(1, b.totalQuestions) - a.score / Math.max(1, a.totalQuestions),
+  )[0]
 }
 
 export function needsReviewSection(results: SectionResult[]): SectionResult | null {
   if (results.length === 0) return null
-  return [...results].sort((a, b) => a.score / a.totalQuestions - b.score / b.totalQuestions)[0]
+  return [...results].sort(
+    (a, b) => a.score / Math.max(1, a.totalQuestions) - b.score / Math.max(1, b.totalQuestions),
+  )[0]
 }
 
 export type TierTone = "success" | "primary" | "warning" | "muted"
@@ -36,31 +50,43 @@ export interface PerformanceTier {
   tone: TierTone
 }
 
-export function performanceTier(totalScore: number): PerformanceTier {
-  if (totalScore === TOTAL_QUESTIONS) {
+/**
+ * Percentage-based performance tier, independent of quiz length.
+ * Perfect = 100%, Excellent ≥ 80%, Good ≥ 60%, otherwise Keep learning.
+ */
+export function performanceTier(score: number, total: number): PerformanceTier {
+  if (total <= 0) {
+    return {
+      title: "Keep learning",
+      message: "Answer some questions to see how you're doing.",
+      tone: "muted",
+    }
+  }
+  const pct = (score / total) * 100
+  if (pct >= 100) {
     return {
       title: "Perfect score",
-      message: "Outstanding. You answered every question across all three sections correctly.",
+      message: "Outstanding. You answered every question correctly.",
       tone: "success",
     }
   }
-  if (totalScore >= 24) {
+  if (pct >= 80) {
     return {
       title: "Excellent performance",
-      message: "Strong knowledge across all areas. A single review pass could close the remaining gaps.",
+      message: "Strong knowledge across the board. A single review pass could close the remaining gaps.",
       tone: "primary",
     }
   }
-  if (totalScore >= 18) {
+  if (pct >= 60) {
     return {
       title: "Good work",
-      message: "Solid understanding overall. Focus on the sections flagged below to push further.",
+      message: "Solid understanding overall. Focus on the questions flagged below to push further.",
       tone: "warning",
     }
   }
   return {
     title: "Keep learning",
-    message: "A good starting point. Review the explanations below and retake the sections when ready.",
+    message: "A good starting point. Review the explanations below and retake when ready.",
     tone: "muted",
   }
 }
@@ -71,7 +97,8 @@ export function sectionInsight(section: SectionId, score: number, total: number)
   if (pct === 1) return `Flawless ${title.toLowerCase()} run — every answer correct.`
   if (pct >= 0.8) return `Strong command of ${title.toLowerCase()}. One more review to reach mastery.`
   if (pct >= 0.6) return `Working knowledge of ${title.toLowerCase()}. Revisit the missed explanations to solidify it.`
-  if (pct >= 0.4) return `Mixed results in ${title.toLowerCase()}. The answer review below highlights exactly what to study.`
+  if (pct >= 0.4)
+    return `Mixed results in ${title.toLowerCase()}. The answer review below highlights exactly what to study.`
   return `${title} needs attention. Work through the explanations below, then retake the section.`
 }
 
