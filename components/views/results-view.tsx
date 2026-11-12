@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, ChevronLeft } from "lucide-react"
+import { ArrowRight, ChevronLeft, RotateCcw } from "lucide-react"
 
 import { ScoreRing } from "@/components/score-ring"
+import { ShareButton } from "@/components/share-button"
 import { Button } from "@/components/ui/button"
 import { useQuizlett } from "@/hooks/use-quizlett"
-import { sectionInsight } from "@/lib/insights"
+import { accuracyPercent, sectionInsight } from "@/lib/insights"
 import { QUESTIONS, SECTION_META, SECTION_ORDER } from "@/lib/questions"
 import type { SectionId } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -14,7 +15,7 @@ import { cn } from "@/lib/utils"
 const LETTERS = ["A", "B", "C", "D"]
 
 export function ResultsView({ section }: { section: SectionId }) {
-  const { getResult, stats, setView } = useQuizlett()
+  const { getResult, stats, setView, retryIncorrect } = useQuizlett()
   const [filter, setFilter] = useState<"all" | "incorrect">("all")
 
   const result = getResult(section)
@@ -33,7 +34,7 @@ export function ResultsView({ section }: { section: SectionId }) {
   const questions = QUESTIONS[section]
   const meta = SECTION_META[section]
   const incorrect = result.totalQuestions - result.score
-  const accuracy = Math.round((result.score / result.totalQuestions) * 100)
+  const accuracy = accuracyPercent(result.score, result.totalQuestions)
   const reviewed = filter === "all" ? result.answers : result.answers.filter((a) => !a.isCorrect)
 
   return (
@@ -47,6 +48,10 @@ export function ResultsView({ section }: { section: SectionId }) {
         <div className="min-w-0">
           <p className="eyebrow">Quiz complete</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{meta.title}</h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {result.mode === "sequential" ? "Sequential" : "Batch"} ·{" "}
+            {result.difficulty === "all" ? "All difficulties" : `${result.difficulty} only`}
+          </p>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
             {sectionInsight(section, result.score, result.totalQuestions)}
           </p>
@@ -159,6 +164,15 @@ export function ResultsView({ section }: { section: SectionId }) {
           <ChevronLeft className="h-4 w-4" />
           Back to home
         </Button>
+        <Button
+          variant={incorrect > 0 ? "secondary" : "outline"}
+          disabled={incorrect === 0}
+          onClick={() => retryIncorrect(section)}
+        >
+          <RotateCcw className="h-4 w-4" />
+          {incorrect > 0 ? `Retry ${incorrect} incorrect` : "All correct"}
+        </Button>
+        <ShareButton section={section} />
         {stats.completedSections === SECTION_ORDER.length && (
           <Button onClick={() => setView("summary")}>
             View final summary

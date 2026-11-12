@@ -1,5 +1,6 @@
 "use client"
 
+import { forwardRef } from "react"
 import { Check, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -13,6 +14,10 @@ interface AnswerOptionProps {
   disabled?: boolean
   onClick?: () => void
   id?: string
+  /** Render with ARIA radio semantics (used inside an AnswerGroup radiogroup). */
+  radio?: boolean
+  checked?: boolean
+  tabIndex?: number
 }
 
 const STATE_CLASSES: Record<OptionState, string> = {
@@ -31,15 +36,23 @@ const CHIP_CLASSES: Record<OptionState, string> = {
   dimmed: "border-border/60 bg-surface text-muted-foreground",
 }
 
-export function AnswerOption({ letter, text, state = "idle", disabled, onClick, id }: AnswerOptionProps) {
+export const AnswerOption = forwardRef<HTMLButtonElement, AnswerOptionProps>(function AnswerOption(
+  { letter, text, state = "idle", disabled, onClick, id, radio, checked, tabIndex },
+  ref,
+) {
   const revealed = state === "correct" || state === "incorrect"
+  const selected = radio ? Boolean(checked) : state === "selected"
   return (
     <button
+      ref={ref}
       type="button"
       id={id}
       disabled={disabled}
       onClick={onClick}
-      aria-pressed={state === "selected"}
+      role={radio ? "radio" : undefined}
+      aria-checked={radio ? selected : undefined}
+      aria-pressed={radio ? undefined : state === "selected"}
+      tabIndex={tabIndex}
       className={cn(
         "group flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors duration-150",
         "disabled:cursor-not-allowed",
@@ -65,4 +78,4 @@ export function AnswerOption({ letter, text, state = "idle", disabled, onClick, 
       ) : null}
     </button>
   )
-}
+})

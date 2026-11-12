@@ -5,6 +5,7 @@ import { BookOpen, Brain, ChevronLeft, Code, RotateCcw, TrendingUp, Trophy } fro
 
 import { ResetDialog } from "@/components/reset-dialog"
 import { ScoreRing } from "@/components/score-ring"
+import { ShareButton } from "@/components/share-button"
 import { Button } from "@/components/ui/button"
 import { useQuizlett } from "@/hooks/use-quizlett"
 import { ACHIEVEMENTS } from "@/lib/achievements"
@@ -15,7 +16,7 @@ import {
   strongestSection,
   type TierTone,
 } from "@/lib/insights"
-import { QUESTIONS_PER_SECTION, SECTION_META, SECTION_ORDER } from "@/lib/questions"
+import { SECTION_META, SECTION_ORDER } from "@/lib/questions"
 import type { SectionId } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -53,7 +54,7 @@ export function SummaryView() {
   const { stats, results, getResult, earned, setView } = useQuizlett()
   const [resetOpen, setResetOpen] = useState(false)
 
-  const tier = performanceTier(stats.totalScore)
+  const tier = performanceTier(stats.totalScore, stats.totalQuestions)
   const strongest = strongestSection(results)
   const weakest = needsReviewSection(results)
   const earnedDefs = ACHIEVEMENTS.filter((a) => earned.includes(a.id))
@@ -119,6 +120,7 @@ export function SummaryView() {
           {SECTION_ORDER.map((section) => {
             const result = getResult(section)
             const score = result?.score ?? 0
+            const total = result?.totalQuestions ?? 0
             const Icon = SECTION_ICON[section]
             return (
               <div
@@ -134,10 +136,10 @@ export function SummaryView() {
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="truncate text-sm font-medium">{SECTION_META[section].title}</p>
                     <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-                      {result ? `${score}/${QUESTIONS_PER_SECTION}` : "—"}
+                      {result ? `${score}/${total}` : "—"}
                     </span>
                   </div>
-                  <Bar value={(score / QUESTIONS_PER_SECTION) * 100} />
+                  <Bar value={total === 0 ? 0 : (score / total) * 100} />
                 </div>
               </div>
             )
@@ -176,6 +178,11 @@ export function SummaryView() {
           <ChevronLeft className="h-4 w-4" />
           Back to home
         </Button>
+        <Button variant="outline" onClick={() => setView("history")}>
+          <TrendingUp className="h-4 w-4" />
+          Attempt history
+        </Button>
+        <ShareButton label="Copy summary" />
         <Button onClick={() => setResetOpen(true)}>
           <RotateCcw className="h-4 w-4" />
           Take quiz again

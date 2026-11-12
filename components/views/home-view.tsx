@@ -1,11 +1,11 @@
 "use client"
 
-import { ArrowRight, BookOpen, Brain, Check, Code, Lock, Star, Trophy } from "lucide-react"
+import { ArrowRight, BookOpen, Brain, Check, Code, History, Lock, Star, Trophy } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useQuizlett } from "@/hooks/use-quizlett"
 import { ACHIEVEMENTS } from "@/lib/achievements"
-import { QUESTIONS, QUESTIONS_PER_SECTION, SECTION_META, SECTION_ORDER } from "@/lib/questions"
+import { QUESTIONS, SECTION_META, SECTION_ORDER, TOTAL_QUESTIONS } from "@/lib/questions"
 import type { AchievementId, SectionId } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -64,14 +64,15 @@ function ProgressOverview() {
           {SECTION_ORDER.map((section) => {
             const result = getResult(section)
             const score = result?.score ?? 0
+            const total = result?.totalQuestions ?? 0
             return (
               <div key={section} className="flex items-center gap-3">
                 <span className="w-36 shrink-0 truncate text-sm text-muted-foreground">
                   {SECTION_META[section].title}
                 </span>
-                <ProgressBar value={(score / QUESTIONS_PER_SECTION) * 100} />
-                <span className="w-12 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                  {result ? `${score}/10` : "—"}
+                <ProgressBar value={total === 0 ? 0 : (score / total) * 100} />
+                <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                  {result ? `${score}/${total}` : "—"}
                 </span>
               </div>
             )
@@ -82,33 +83,24 @@ function ProgressOverview() {
   )
 }
 
-interface ContinueItem {
-  section: SectionId
-  detail: string
-  percent: number
-}
-
 function ContinueBanner() {
-  const { mathIndex, batchAnswers, getResult, setView } = useQuizlett()
+  const { active, setView } = useQuizlett()
 
-  const items: ContinueItem[] = []
-  if (!getResult("mathematics") && mathIndex > 0) {
-    items.push({
-      section: "mathematics",
-      detail: `Question ${mathIndex + 1} of ${QUESTIONS_PER_SECTION}`,
-      percent: (mathIndex / QUESTIONS_PER_SECTION) * 100,
-    })
-  }
-  for (const section of ["programming", "generalKnowledge"] as const) {
-    const answered = Object.keys(batchAnswers[section]).length
-    if (!getResult(section) && answered > 0) {
-      items.push({
-        section,
-        detail: `${answered} of ${QUESTIONS_PER_SECTION} answered`,
-        percent: (answered / QUESTIONS_PER_SECTION) * 100,
-      })
-    }
-  }
+  const items = SECTION_ORDER.map((section) => {
+    const attempt = active[section]
+    if (!attempt) return null
+    const total = attempt.config.questionIds.length
+    const answered = Object.keys(attempt.answers).length
+    if (answered === 0 && attempt.currentIndex === 0) return null
+    const detail =
+      attempt.config.mode === "sequential"
+        ? `Question ${Math.min(attempt.currentIndex + 1, total)} of ${total}`
+        : `${answered} of ${total} answered`
+    const percent = attempt.config.mode === "sequential"
+      ? (attempt.currentIndex / total) * 100
+      : (answered / total) * 100
+    return { section, detail, percent }
+  }).filter((item): item is { section: SectionId; detail: string; percent: number } => item !== null)
 
   if (items.length === 0) return null
 
@@ -141,19 +133,20 @@ function ContinueBanner() {
 }
 
 function CategoryCard({ section }: { section: SectionId }) {
-  const { getResult, mathIndex, batchAnswers, setView } = useQuizlett()
+  const { getResult, getActive, setView } = useQuizlett()
   const meta = SECTION_META[section]
   const Icon = SECTION_ICON[section]
   const result = getResult(section)
+  const attempt = getActive(section)
 
-  const inProgressCount =
-    section === "mathematics" ? mathIndex : Object.keys(batchAnswers[section as "programming" | "generalKnowledge"]).length
-  const started = result ? true : inProgressCount > 0
-  const percent = result ? 100 : (inProgressCount / QUESTIONS_PER_SECTION) * 100
+  const total = attempt?.config.questionIds.length ?? 0
+  const answered = attempt ? Object.keys(attempt.answers).length : 0
+  const started = result ? true : answered > 0 || (attempt?.currentIndex ?? 0) > 0
+  const percent = result ? 100 : total === 0 ? 0 : (answered / total) * 100
   const status = result
-    ? `Completed · ${result.score}/10`
-    : inProgressCount > 0
-      ? `In progress · ${inProgressCount}/10`
+    ? `Completed · ${result.score}/${result.totalQuestions}`
+    : started
+      ? `In progress · ${answered}/${total}`
       : "Not started"
 
   return (
@@ -178,7 +171,7 @@ function CategoryCard({ section }: { section: SectionId }) {
       <div className="mt-auto space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className={cn("tabular-nums", started ? "text-foreground" : "text-muted-foreground")}>{status}</span>
-          <span className="tabular-nums text-muted-foreground">{QUESTIONS[section].length} questions</span>
+          <span className="tabular-nums text-muted-foreground">{QUESTIONS[section].length} in bank</span>
         </div>
         <ProgressBar value={percent} />
       </div>
@@ -245,7 +238,7 @@ function AchievementsPanel() {
 }
 
 export function HomeView() {
-  const { stats, setView } = useQuizlett()
+  const { stats, setView, history } = useQuizlett()
   return (
     <div className="space-y-10 sm:space-y-12">
       <section className="animate-fade-up max-w-2xl">
@@ -256,14 +249,22 @@ export function HomeView() {
           Discover what you don&apos;t.
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Choose a topic, challenge yourself, and track your progress.
+          Choose a topic, pick a length and difficulty, and track your progress.
         </p>
-        {stats.completedSections === SECTION_ORDER.length && (
-          <Button className="mt-6" onClick={() => setView("summary")}>
-            View final summary
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        )}
+        <div className="mt-6 flex flex-wrap gap-3">
+          {stats.completedSections === SECTION_ORDER.length && (
+            <Button onClick={() => setView("summary")}>
+              View final summary
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+          {history.length > 0 && (
+            <Button variant="outline" onClick={() => setView("history")}>
+              <History className="h-4 w-4" />
+              Attempt history
+            </Button>
+          )}
+        </div>
       </section>
 
       <ProgressOverview />
@@ -272,7 +273,9 @@ export function HomeView() {
       <section aria-label="Quiz sections">
         <div className="mb-4 flex items-baseline justify-between">
           <h2 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Sections</h2>
-          <span className="text-xs text-muted-foreground">3 topics · 30 questions</span>
+          <span className="text-xs text-muted-foreground">
+            {SECTION_ORDER.length} topics · {TOTAL_QUESTIONS} questions
+          </span>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {SECTION_ORDER.map((section) => (

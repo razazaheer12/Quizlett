@@ -6,23 +6,28 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://quizlett-mcqs.vercel.app"),
   title: "Quizlett — Test Your Knowledge",
   description:
-    "A polished interactive quiz experience across Mathematics, Programming, and General Knowledge.",
+    "A polished, local-first interactive quiz across Mathematics, Programming, and General Knowledge — 45 questions, selectable length and difficulty, attempt history, and achievements.",
   applicationName: "Quizlett",
+  keywords: ["quiz", "mcq", "mathematics", "programming", "general knowledge", "practice"],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Quizlett — Test Your Knowledge",
     description:
-      "A polished interactive quiz experience across Mathematics, Programming, and General Knowledge.",
+      "A polished, local-first interactive quiz across Mathematics, Programming, and General Knowledge.",
     siteName: "Quizlett",
     type: "website",
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
     title: "Quizlett — Test Your Knowledge",
     description:
-      "A polished interactive quiz experience across Mathematics, Programming, and General Knowledge.",
+      "A polished, local-first interactive quiz across Mathematics, Programming, and General Knowledge.",
   },
 }
 
