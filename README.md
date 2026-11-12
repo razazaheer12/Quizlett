@@ -26,7 +26,9 @@ Test what you know. Discover what you don't.
 
 </div>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e36ced98-248e-4322-81d7-56dc542a8ad6" width="100%" alt="Quizlett Preview">
+  <img width="1920" height="1583" alt="image" src="https://github.com/user-attachments/assets/5cdea245-1036-4b55-a0d2-abe48a76fff9" />
+  <img width="1920" height="1741" alt="image" src="https://github.com/user-attachments/assets/7d4d882a-6f94-48d5-96d6-cbfb845bafb3" />
+
 </p>
 
 ---
